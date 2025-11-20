@@ -157,8 +157,7 @@
 
 	function applyRandomBg() {
 		if (!bgImages.length) return;
-		currentBg = bgImages[Math.floor(Math.random() * bgImages.length)];
-		leaderboardBgStyle = `--leaderboard-bg: url('${currentBg}')`;
+		leaderboardBgStyle = bgImages[Math.floor(Math.random() * bgImages.length)];
 	}
 
 	onMount(() => {
@@ -258,7 +257,8 @@
 		</button>
 	</div>
 
-	<div class="leaderboard" role="grid" aria-label="Score leaderboard" style={leaderboardBgStyle}>
+	<div class="leaderboard" role="grid" aria-label="Score leaderboard">
+		<img class="fun" src={leaderboardBgStyle} alt="lol" />
 		<div class="header-row" role="row">
 			<button
 				type="button"
@@ -367,6 +367,7 @@
 		margin: 0;
 		background: radial-gradient(circle at top, #111827 0%, #020617 45%, #020617 100%);
 		color: #e5e7eb;
+		color-scheme: dark;
 		font-family:
 			system-ui,
 			-apple-system,
@@ -479,13 +480,16 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background-image: var(--leaderboard-bg);
-		background-size: contain;
-		background-repeat: no-repeat;
-		background-position: center;
-		opacity: 0.05;
 		pointer-events: none;
 		z-index: -1;
+	}
+
+	.fun {
+		position: absolute;
+		z-index: -1;
+		opacity: 0.05;
+		width: 700px;
+		filter: none !important;
 	}
 
 	.header-row,
