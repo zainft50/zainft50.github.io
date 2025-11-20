@@ -1,122 +1,29 @@
 <script lang="ts">
+	// icons
 	import ytIcon from '$lib/assets/yt.svg?url';
 	import twIcon from '$lib/assets/tw.svg?url';
 	import ghIcon from '$lib/assets/gh.svg?url';
 
+	// leaderboard rows
+	import EntryRow from '$lib/EntryRow.svelte';
+	// leaderboard entries
+	import { entries, keyFor, type Entry } from '$lib/leaderboard';
+
+	// sort animation
 	import { flip } from 'svelte/animate';
-	import { onMount } from 'svelte';
 
-	type Entry = {
-		date: string; // "mm/dd"
-		name: string; // "player name"
-		char: string; // char png filename (no extension)
-		score: string; // "x-y"
-		youtubeVod?: string; // "yt vod url"
-		twitchVod?: string; // "tw vod url"
-	};
-
-	// manually edit this data
-	const entries: Entry[] = [
-		{
-			date: '11/19',
-			name: 'Krudo',
-			char: 'Sheik',
-			score: 'TBD',
-			youtubeVod: '',
-			twitchVod: ''
-		},
-		{
-			date: '11/18',
-			name: 'Moky',
-			char: 'Fox',
-			score: '29-50',
-			youtubeVod: 'https://www.youtube.com/watch?v=ly1WcFr7Nq4',
-			twitchVod: 'https://www.twitch.tv/videos/2621957420'
-		},
-		{
-			date: '11/18',
-			name: 'Moky (reverse mains)',
-			char: 'Marth',
-			score: '50-26',
-			youtubeVod: 'https://www.youtube.com/watch?v=T9v2MrW4-L8',
-			twitchVod: 'https://www.twitch.tv/videos/2621957420?t=04h06m49s'
-		},
-		{
-			date: '11/17',
-			name: 'KJH',
-			char: 'Falco',
-			score: '9-50',
-			youtubeVod: 'https://www.youtube.com/watch?v=VKbulnKryC0',
-			twitchVod: 'https://www.twitch.tv/videos/2621097956'
-		},
-		{
-			date: '11/14',
-			name: 'Ludwig',
-			char: 'Puff',
-			score: '0-100',
-			youtubeVod: 'https://www.youtube.com/watch?v=3zFxFTqZ34Y',
-			twitchVod: 'https://www.twitch.tv/videos/2618594039'
-		},
-		{
-			date: '11/13',
-			name: 'Swift',
-			char: 'Pikachu',
-			score: '19-50',
-			youtubeVod: 'https://www.youtube.com/watch?v=lxO671cBilk',
-			twitchVod: 'https://www.twitch.tv/videos/2617792451'
-		},
-		{
-			date: '11/12',
-			name: 'SirMeris',
-			char: 'Peach',
-			score: '8-50',
-			youtubeVod: 'https://www.youtube.com/watch?v=hcGZxEDrEVU',
-			twitchVod: 'https://www.twitch.tv/videos/2616794276'
-		},
-		{
-			date: '11/11',
-			name: 'DarkGenex',
-			char: 'Icies',
-			score: '5-50',
-			youtubeVod: 'https://www.youtube.com/watch?v=aFa9JevcHtU',
-			twitchVod: 'https://www.twitch.tv/videos/2615769677'
-		},
-		{
-			date: '11/10',
-			name: 'Soonsay',
-			char: 'Fox',
-			score: '12-50',
-			youtubeVod: 'https://www.youtube.com/watch?v=ZDXmUTRU3bQ',
-			twitchVod: 'https://www.twitch.tv/videos/2615022948'
-		},
-		{
-			date: '11/07',
-			name: 'Bobbybigballz',
-			char: 'Falco',
-			score: '4-50',
-			youtubeVod: 'https://www.youtube.com/watch?v=Xll93Ljt6PY',
-			twitchVod: 'https://www.twitch.tv/videos/2612258479'
-		},
-		{
-			date: '10/16',
-			name: 'Kevin',
-			char: 'Falco',
-			score: '1-274',
-			youtubeVod: '', // no yt vod for some reason
-			twitchVod: 'https://www.twitch.tv/videos/2593361548'
-		}
-	];
-
+	// only date/name/score should be sortable
 	type SortColumn = 'date' | 'name' | 'score';
 	type SortDirection = 'asc' | 'desc';
 
+	// by default sort desc on date col
 	let sortColumn: SortColumn = 'date';
-	let sortDirection: SortDirection = 'desc'; // most recent / highest first
+	let sortDirection: SortDirection = 'desc';
+
 	let revealedScores: Record<string, boolean> = {};
 	let showAll = false;
 
-	const keyFor = (entry: Entry) => `${entry.date}|${entry.name}`;
-
+	// row reveal delay
 	const rowDelayMap: Record<string, number> = {};
 	entries.forEach((entry, index) => {
 		rowDelayMap[keyFor(entry)] = index * 80; // ms
@@ -126,33 +33,14 @@
 		return rowDelayMap[keyFor(entry)] ?? 0;
 	}
 
-	const ssbmCharIcons = import.meta.glob('$lib/assets/ssbm_icons/*.png', {
-		eager: true,
-		query: '?url',
-		import: 'default'
-	}) as Record<string, string>;
-
-	function iconForChar(char: string): string | null {
-		const lowerChar = char.toLowerCase();
-		for (const [path, url] of Object.entries(ssbmCharIcons)) {
-			const file = path.split('/').pop() ?? '';
-			const base = file.slice(0, file.lastIndexOf('.'));
-			if (base.toLowerCase() === lowerChar) {
-				return url;
-			}
-		}
-		return null;
-	}
-
-	const bgModules = import.meta.glob('../lib/assets/fun/*.{png,avif}', {
+	// import fun pics
+	const bgModules = import.meta.glob('$lib/assets/fun/*.{png,avif}', {
 		eager: true,
 		query: '?url',
 		import: 'default'
 	}) as Record<string, string>;
 
 	const bgImages = Object.values(bgModules);
-
-	let currentBg: string | null = null;
 	let leaderboardBgStyle = '';
 
 	function applyRandomBg() {
@@ -160,18 +48,17 @@
 		leaderboardBgStyle = bgImages[Math.floor(Math.random() * bgImages.length)];
 	}
 
-	onMount(() => {
-		applyRandomBg();
-	});
-
-	// parse "x-y" and return x (first number) for sorting
-	function scorePrimary(score: string): number {
+	// returns the the first number in the "x-y" pattern.
+	// ex: x-y returns x.
+	// this is used for sorting.
+	function playerScore(score: string): number {
 		const [rawFirst] = score.split('-');
 		const first = Number(rawFirst?.trim());
 		if (!Number.isFinite(first)) return 0;
 		return first;
 	}
 
+	// sets sort vars (col + direction)
 	function sortBy(column: SortColumn) {
 		if (sortColumn === column) {
 			sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
@@ -180,7 +67,6 @@
 			sortDirection = column === 'name' ? 'asc' : 'desc';
 		}
 
-		// also randomize background on sort
 		applyRandomBg();
 	}
 
@@ -189,7 +75,7 @@
 		return sortDirection === 'asc' ? 'ascending' : 'descending';
 	}
 
-	// depends on sortColumn & sortDirection as well as entries
+	// defines sorting behavior
 	$: sortedEntries = [...entries].sort((a, b) => {
 		let valA: string | number;
 		let valB: string | number;
@@ -204,8 +90,8 @@
 				valB = b.name.toLowerCase();
 				break;
 			case 'score':
-				valA = scorePrimary(a.score);
-				valB = scorePrimary(b.score);
+				valA = playerScore(a.score);
+				valB = playerScore(b.score);
 				break;
 		}
 
@@ -213,6 +99,27 @@
 		if (valA > valB) return sortDirection === 'asc' ? 1 : -1;
 		return 0;
 	});
+
+	let hiddenRevealOrder: Record<string, number> = {};
+
+	// when showAll or revealedScores/sortedEntries change, recompute stagger order
+	$: {
+		const map: Record<string, number> = {};
+
+		if (showAll) {
+			let idx = 0;
+			for (const entry of sortedEntries) {
+				const k = keyFor(entry);
+
+				// only assign an order to rows that are still hidden
+				if (!revealedScores[k]) {
+					map[k] = idx++;
+				}
+			}
+		}
+
+		hiddenRevealOrder = map;
+	}
 
 	function revealScore(entry: Entry) {
 		const k = keyFor(entry);
@@ -233,7 +140,7 @@
 </script>
 
 <main class="page">
-	<div class="leaderboard-header">
+	<div class="title">
 		<h1>Zain's First To 50 Leaderboard</h1>
 
 		<div class="stream-links">
@@ -246,7 +153,7 @@
 		</div>
 	</div>
 
-	<div class="toolbar">
+	<div class="reveal-spoiler">
 		<button
 			type="button"
 			class="toggle-all"
@@ -258,7 +165,7 @@
 	</div>
 
 	<div class="leaderboard" role="grid" aria-label="Score leaderboard">
-		<img class="fun" src={leaderboardBgStyle} alt="lol" />
+		<img class="fun" src={leaderboardBgStyle} alt=":)" />
 		<div class="header-row" role="row">
 			<button
 				type="button"
@@ -298,58 +205,15 @@
 					style={`--row-delay: ${rowDelay(entry)}ms`}
 					animate:flip={{ duration: 200 }}
 				>
-					<div class="cell date" role="gridcell">{entry.date}</div>
-					<div class="cell name" role="gridcell">{entry.name}</div>
-					<div class="cell score" role="gridcell">
-						<button
-							type="button"
-							class="score-wrapper"
-							class:revealed={!showAll && !!revealedScores[keyFor(entry)]}
-							class:all-visible={showAll}
-							style={`--reveal-delay: ${i * 150}ms`}
-							on:click={() => revealScore(entry)}
-							aria-pressed={revealedScores[keyFor(entry)] ? 'true' : 'false'}
-						>
-							<span class="score-mask">
-								{#if iconForChar(entry.char)}
-									<img src={iconForChar(entry.char)} alt={`${entry.char} icon`} class="char-icon" />
-								{:else}
-									{entry.char}
-								{/if}
-							</span>
-							<span class="score-value">{entry.score}</span>
-						</button>
-					</div>
-					<div class="cell vod" role="gridcell">
-						{#if entry.youtubeVod || entry.twitchVod}
-							<div class="vod-icons">
-								{#if entry.youtubeVod}
-									<a
-										href={entry.youtubeVod}
-										target="_blank"
-										rel="noreferrer"
-										class="vod-link"
-										aria-label="YouTube VOD"
-									>
-										<img src={ytIcon} alt="Youtube vod" class="vod-icon" />
-									</a>
-								{/if}
-								{#if entry.twitchVod}
-									<a
-										href={entry.twitchVod}
-										target="_blank"
-										rel="noreferrer"
-										class="vod-link"
-										aria-label="Twitch VOD"
-									>
-										<img src={twIcon} alt="Twitch vod" class="vod-icon" />
-									</a>
-								{/if}
-							</div>
-						{:else}
-							<span class="muted">—</span>
-						{/if}
-					</div>
+					<EntryRow
+						{entry}
+						revealDelay={hiddenRevealOrder[keyFor(entry)] !== undefined
+							? hiddenRevealOrder[keyFor(entry)] * 150
+							: 0}
+						{showAll}
+						revealed={!!revealedScores[keyFor(entry)]}
+						onReveal={() => revealScore(entry)}
+					/>
 				</div>
 			{/each}
 		</div>
@@ -392,14 +256,14 @@
 		filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.7));
 	}
 
-	.leaderboard-header {
+	.title {
 		max-width: 800px;
 		margin: 3rem auto 1rem;
 		text-align: center;
 		color: #f9fafb;
 	}
 
-	.leaderboard-header h1 {
+	.title h1 {
 		margin: 0 0 0.4rem;
 		font-size: 3rem;
 		letter-spacing: 0.03em;
@@ -413,7 +277,7 @@
 		justify-content: center;
 	}
 
-	.toolbar {
+	.reveal-spoiler {
 		max-width: 800px;
 		margin: 0 auto 2rem;
 		display: flex;
@@ -467,9 +331,8 @@
 		border: 1px solid #1f2937;
 		border-radius: 10px;
 		overflow: hidden;
-		/* the table surface is transparent now */
 		background: transparent;
-		position: relative; /* needed for ::before to anchor */
+		position: relative;
 		font-size: 1.2rem;
 		box-shadow:
 			0 14px 32px rgba(0, 0, 0, 0.85),
@@ -487,7 +350,7 @@
 	.fun {
 		position: absolute;
 		z-index: -1;
-		opacity: 0.05;
+		opacity: 0.1;
 		width: 700px;
 		filter: none !important;
 	}
@@ -539,30 +402,51 @@
 		background: #0b1120;
 	}
 
-	.header-cell,
-	.cell {
+	/* header cells (local to this component) */
+	.header-cell {
 		min-width: 0;
 		color: #e5e7eb;
 	}
 
-	.header-cell.date,
-	.cell.date {
+	.header-cell.date {
 		font-variant-numeric: tabular-nums;
 		justify-self: center;
 		text-align: center;
 	}
 
-	.header-cell.name,
-	.cell.name {
+	.header-cell.name {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
 	.header-cell.score,
-	.cell.score,
-	.header-cell.vod,
-	.cell.vod {
+	.header-cell.vod {
+		font-variant-numeric: tabular-nums;
+		justify-self: center;
+		text-align: center;
+	}
+
+	/* row cells (global so they affect EntryRow.svelte) */
+	:global(.cell) {
+		min-width: 0;
+		color: #e5e7eb;
+	}
+
+	:global(.cell.date) {
+		font-variant-numeric: tabular-nums;
+		justify-self: center;
+		text-align: center;
+	}
+
+	:global(.cell.name) {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	:global(.cell.score),
+	:global(.cell.vod) {
 		font-variant-numeric: tabular-nums;
 		justify-self: center;
 		text-align: center;
@@ -587,45 +471,45 @@
 		text-underline-offset: 0.15em;
 	}
 
-	a {
+	:global(a) {
 		text-decoration: none;
 		font-weight: 500;
 		color: #f97316;
 	}
 
-	a:hover {
+	:global(a:hover) {
 		text-decoration: underline;
 		text-underline-offset: 0.15em;
 	}
 
-	.muted {
+	/* VOD icons / muted text (used in EntryRow) */
+	:global(.muted) {
 		color: #9ca3af;
 		font-size: 0.8rem;
 	}
 
-	/* VOD icons */
-	.vod-icons {
+	:global(.vod-icons) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		gap: 0.4rem;
 	}
 
-	.vod-link {
+	:global(.vod-link) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 	}
 
-	.vod-icon {
+	:global(.vod-icon) {
 		width: 24px;
 		height: 24px;
 		display: block;
 		filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.8));
 	}
 
-	/* score spoiler button */
-	.score-wrapper {
+	/* score spoiler button for EntryRow */
+	:global(.score-wrapper) {
 		position: relative;
 		display: inline-grid; /* overlap the two spans */
 		place-items: center; /* center both horizontally & vertically */
@@ -639,28 +523,28 @@
 		color: #e5e7eb;
 	}
 
-	.score-mask,
-	.score-value {
+	:global(.score-mask),
+	:global(.score-value) {
 		grid-area: 1 / 1 / 2 / 2; /* same cell -> overlap */
 		transition: opacity 0.5s ease-in-out;
 	}
 
-	.score-wrapper.all-visible .score-mask,
-	.score-wrapper.all-visible .score-value {
+	:global(.score-wrapper.all-visible .score-mask),
+	:global(.score-wrapper.all-visible .score-value) {
 		transition-delay: var(--reveal-delay, 0ms);
 	}
 
 	/* default: show icon, hide score */
-	.score-mask {
+	:global(.score-mask) {
 		opacity: 1;
 	}
 
-	.score-value {
+	:global(.score-value) {
 		opacity: 0;
 	}
 
 	/* character icon */
-	.char-icon {
+	:global(.char-icon) {
 		width: 32px;
 		height: 32px;
 		object-fit: contain;
@@ -670,29 +554,29 @@
 	}
 
 	/* show score on hover (when not globally showing all) */
-	.score-wrapper:hover .score-mask {
+	:global(.score-wrapper:hover .score-mask) {
 		opacity: 0;
 	}
 
-	.score-wrapper:hover .score-value {
+	:global(.score-wrapper:hover .score-value) {
 		opacity: 1;
 	}
 
 	/* after click: score is always visible, but only when showAll is false */
-	.score-wrapper.revealed .score-mask {
+	:global(.score-wrapper.revealed .score-mask) {
 		opacity: 0;
 	}
 
-	.score-wrapper.revealed .score-value {
+	:global(.score-wrapper.revealed .score-value) {
 		opacity: 1;
 	}
 
 	/* global "show all" state: overrides everything */
-	.score-wrapper.all-visible .score-mask {
+	:global(.score-wrapper.all-visible .score-mask) {
 		opacity: 0;
 	}
 
-	.score-wrapper.all-visible .score-value {
+	:global(.score-wrapper.all-visible .score-value) {
 		opacity: 1;
 	}
 
