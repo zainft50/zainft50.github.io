@@ -15,7 +15,7 @@
 		twitchVod?: string; // "tw vod url"
 	};
 
-	// Manually edit this data
+	// manually edit this data
 	const entries: Entry[] = [
 		{
 			date: '11/19',
