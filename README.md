@@ -25,7 +25,7 @@ updating the table is done with the entry struct in [page.svelte](https://github
 First, install depenencies:
 
 ```sh
-`pnpm install`
+pnpm install
 ```
 
 To start a development server:
@@ -46,10 +46,10 @@ pnpm run build
 You can preview the prod build via:
 
 ```sh
-`pnpm run preview`.
+pnpm run preview
 ```
 
-Uses the svelte static adapter.
+Uses the svelte static adapter. Also apparently github pages requires the `.nojekyll` file for branch based deployments.
 
 </details>
 
