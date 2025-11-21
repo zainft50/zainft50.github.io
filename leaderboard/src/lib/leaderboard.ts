@@ -10,6 +10,14 @@ export type Entry = {
 // manually edit this data
 export const entries: Entry[] = [
 	{
+		date: '11/21',
+		name: 'Mono',
+		char: 'Yoshi',
+		score: 'TBD',
+		youtubeVod: '',
+		twitchVod: ''
+	},
+	{
 		date: '11/20',
 		name: 'Krudo',
 		char: 'Sheik',
