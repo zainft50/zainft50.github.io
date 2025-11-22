@@ -11,6 +11,14 @@ export type Entry = {
 export const entries: Entry[] = [
 	{
 		date: '11/21',
+		name: 'Cody (friendlies)',
+		char: 'Fox',
+		score: '21-16',
+		youtubeVod: '',
+		twitchVod: 'https://www.twitch.tv/videos/2624489249?t=03h22m34s'
+	},
+	{
+		date: '11/21',
 		name: 'Mono',
 		char: 'Yoshi',
 		score: '2-50',
