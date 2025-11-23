@@ -22,8 +22,8 @@ export const entries: Entry[] = [
 		name: 'Mono',
 		char: 'Yoshi',
 		score: '2-50',
-		youtubeVod: '',
-		twitchVod: ''
+		youtubeVod: 'https://www.youtube.com/watch?v=OCDri4zkj9o',
+		twitchVod: 'https://www.twitch.tv/videos/2624353907'
 	},
 	{
 		date: '11/20',
