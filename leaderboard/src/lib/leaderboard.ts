@@ -13,7 +13,7 @@ export const entries: Entry[] = [
 		date: '11/24',
 		name: 'Hungrybox',
 		char: 'Puff',
-		score: 'TBD',
+		score: '30-50',
 		youtubeVod: '',
 		twitchVod: ''
 	},
