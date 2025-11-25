@@ -15,7 +15,7 @@ export const entries: Entry[] = [
 		char: 'Puff',
 		score: '30-50',
 		youtubeVod: '',
-		twitchVod: ''
+		twitchVod: 'https://www.twitch.tv/videos/2627223891'
 	},
 	{
 		date: '11/21',
