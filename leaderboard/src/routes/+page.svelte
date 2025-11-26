@@ -326,7 +326,7 @@
 
 	.leaderboard {
 		width: 100%;
-		max-width: 700px;
+		max-width: 800px;
 		margin: 0 auto 1.5rem;
 		border: 1px solid #1f2937;
 		border-radius: 10px;
@@ -351,7 +351,7 @@
 		position: absolute;
 		z-index: -1;
 		opacity: 0.1;
-		width: 700px;
+		width: 800px;
 		filter: none !important;
 	}
 
