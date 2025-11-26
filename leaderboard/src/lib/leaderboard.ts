@@ -14,7 +14,7 @@ export const entries: Entry[] = [
 		name: 'Hungrybox',
 		char: 'Puff',
 		score: '30-50',
-		youtubeVod: '',
+		youtubeVod: 'https://www.youtube.com/watch?v=XvT2HBxCs_I',
 		twitchVod: 'https://www.twitch.tv/videos/2627223891'
 	},
 	{
